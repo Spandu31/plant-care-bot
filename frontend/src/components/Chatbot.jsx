@@ -1,29 +1,24 @@
+// frontend/src/components/Chatbot.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  // 1. State for the proactive pop-up visibility
   const [showPopup, setShowPopup] = useState(true);
 
   const [messages, setMessages] = useState([
     {
       sender: "Bot",
-      text: "Welcome! How can I help you with your plants today? 🌿"
-    }
+      text: "Welcome! How can I help you with your plants today? 🌿",
+    },
   ]);
 
-  // 2. useEffect to automatically hide the pop-up after a delay
   useEffect(() => {
-    // Only set the timer if the popup is currently visible
     if (showPopup && !open) {
       const timer = setTimeout(() => {
         setShowPopup(false);
-      }, 5000); // Popup disappears after 5 seconds
-
-      // Cleanup function to clear the timer if the component unmounts
-      // or the dependencies change (though we only use it on mount/show)
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [showPopup, open]);
@@ -32,19 +27,29 @@ export default function Chatbot() {
     if (!input.trim()) return;
     const newMessages = [...messages, { sender: "You", text: input }];
     setMessages(newMessages);
-    setInput(""); // Clear input immediately for better UX
+    setInput("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/chat", { message: input });
-      setMessages([...newMessages, { sender: "Bot", text: res.data.reply }]);
+      const res = await axios.post("http://localhost:5000/api/chat", {
+        message: input,
+      });
+      setMessages([
+        ...newMessages,
+        { sender: "Bot", text: res.data.reply || "No reply from server." },
+      ]);
     } catch (err) {
-      setMessages((prev) => [...prev, { sender: "Bot", text: "Sorry, I'm having trouble connecting to the server." }]);
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "Bot",
+          text: "Sorry, I'm having trouble connecting to the server.",
+        },
+      ]);
     }
   };
 
-  // Function to handle the icon click
   const toggleChat = () => {
-    // Hide the proactive popup immediately when the user opens the chat
     if (!open) {
       setShowPopup(false);
     }
@@ -53,21 +58,13 @@ export default function Chatbot() {
 
   return (
     <>
-      {/* 3. Proactive Pop-up Cloud Message JSX */}
       {showPopup && !open && (
-        <div 
-          className="chatbot-popup-cloud" 
-          onClick={toggleChat}
-        >
-          Hi! I'm your Plant Care Assistant. 🪴
+        <div className="chatbot-popup-cloud" onClick={toggleChat}>
+          {/* you can add some teaser text here */}
         </div>
       )}
 
-      <button
-        // 4. Update the toggle button to use the new handler
-        className="btn btn-success chatbot-toggle"
-        onClick={toggleChat}
-      >
+      <button className="btn btn-success chatbot-toggle" onClick={toggleChat}>
         🤖
       </button>
 
@@ -75,7 +72,10 @@ export default function Chatbot() {
         <div className="chatbot-window card shadow-sm p-2">
           <div className="chat-messages mb-2">
             {messages.map((m, i) => (
-              <div key={i} className={m.sender === "You" ? "text-end" : "text-start"}>
+              <div
+                key={i}
+                className={m.sender === "You" ? "text-end" : "text-start"}
+              >
                 <b>{m.sender}:</b> {m.text}
               </div>
             ))}
@@ -89,7 +89,9 @@ export default function Chatbot() {
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Ask about plant care..."
             />
-            <button className="btn btn-success" onClick={sendMessage}>Send</button>
+            <button className="btn btn-success" onClick={sendMessage}>
+              Send
+            </button>
           </div>
         </div>
       )}

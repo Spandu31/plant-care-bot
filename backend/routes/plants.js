@@ -1,9 +1,10 @@
 const express = require("express");
 const Plant = require("../models/Plant");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
 // 🔹 Create a new plant
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
     const { name, type, wateringFrequency, lastWateredAt } = req.body;
     const newPlant = new Plant({
@@ -11,6 +12,7 @@ router.post("/", async (req, res) => {
       type,
       wateringFrequency,
       lastWateredAt: lastWateredAt || Date.now(), // default to now if not provided
+      user: req.user.id // Add user from auth middleware
     });
     await newPlant.save();
     res.status(201).json(newPlant);
@@ -19,10 +21,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 🔹 Get all plants
-router.get("/", async (req, res) => {
+// 🔹 Get all plants for the logged in user
+router.get("/", auth, async (req, res) => {
   try {
-    const plants = await Plant.find();
+    const plants = await Plant.find({ user: req.user.id });
     res.json(plants);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -30,10 +32,17 @@ router.get("/", async (req, res) => {
 });
 
 // 🔹 Update plant (generic)
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
+    let plant = await Plant.findById(req.params.id);
+    if (!plant) return res.status(404).json({ error: "Plant not found" });
+
+    // Make sure user owns plant
+    if (plant.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: "Not authorized" });
+    }
+
     const updatedPlant = await Plant.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedPlant) return res.status(404).json({ error: "Plant not found" });
     res.json(updatedPlant);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -41,15 +50,22 @@ router.put("/:id", async (req, res) => {
 });
 
 // 🔹 Water plant (update lastWateredAt to today)
-router.put("/water/:id", async (req, res) => {
+router.put("/water/:id", auth, async (req, res) => {
   try {
+    let plant = await Plant.findById(req.params.id);
+    if (!plant) return res.status(404).json({ error: "Plant not found" });
+
+    // Make sure user owns plant
+    if (plant.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: "Not authorized" });
+    }
+
     const today = new Date();
     const wateredPlant = await Plant.findByIdAndUpdate(
       req.params.id,
       { lastWateredAt: today },
       { new: true }
     );
-    if (!wateredPlant) return res.status(404).json({ error: "Plant not found" });
     res.json(wateredPlant);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,8 +73,16 @@ router.put("/water/:id", async (req, res) => {
 });
 
 // 🔹 Delete plant
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try {
+    let plant = await Plant.findById(req.params.id);
+    if (!plant) return res.status(404).json({ error: "Plant not found" });
+
+    // Make sure user owns plant
+    if (plant.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: "Not authorized" });
+    }
+
     await Plant.findByIdAndDelete(req.params.id);
     res.json({ message: "Plant deleted" });
   } catch (err) {

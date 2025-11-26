@@ -1,10 +1,18 @@
+// backend/server.js
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const plantRoutes = require("./routes/plants"); // no .js needed
+const path = require("path");
 
-dotenv.config();
+const plantRoutes = require("./routes/plants");
+const authRoutes = require("./routes/auth");
+const chatRoutes = require("./routes/chat"); // 👈 add this
+
+// Load env (.env in same folder as server.js)
+dotenv.config({ path: path.join(__dirname, ".env") });
+
+console.log("MONGO_URL present?", !!process.env.MONGO_URL);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,27 +21,28 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Plant routes
+// Routes
 app.use("/api/plants", plantRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes); // 👈 use chat router here
 
-// Chat route
-app.post("/api/chat", (req, res) => {
-  const { message } = req.body;
+// ❌ REMOVE this whole old chat route:
+// app.post("/api/chat", (req, res) => { ... });
 
-  let reply = "Sorry, I don’t understand.";
-  if (message.toLowerCase().includes("water")) {
-    reply = "Most plants need watering 2–3 times a week.";
-  } else if (message.toLowerCase().includes("sunlight")) {
-    reply = "Keep your plant where it gets indirect sunlight.";
-  }
-
-  res.json({ reply });
-});
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
+// MongoDB
+if (!process.env.MONGO_URL) {
+  console.error("❌ MONGO_URL is not set in .env");
+} else {
+  mongoose
+    .connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log("MongoDB connected"))
+    .catch((err) => console.error("MongoDB connection error:", err));
+}
 
 // Start server
-app.listen(PORT, () => console.log(`✅ Backend running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ Backend running on http://localhost:${PORT}`)
+);
