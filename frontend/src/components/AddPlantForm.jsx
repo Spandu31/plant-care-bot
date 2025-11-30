@@ -22,7 +22,7 @@ export default function AddPlantForm({ refresh, closeForm }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/plants", form);
+      await axios.post("http://plant-care-bot.onrender.com/api/plants", form);
       refresh();   // Refresh dashboard
       closeForm(); // Close the form
     } catch (err) {

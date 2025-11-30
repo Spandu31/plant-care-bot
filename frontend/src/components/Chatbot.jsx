@@ -30,7 +30,7 @@ export default function Chatbot() {
     setInput("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/chat", {
+      const res = await axios.post("http://plant-care-bot.onrender.com/api/chat", {
         message: input,
       });
       setMessages([

@@ -24,7 +24,7 @@ export default function Dashboard() {
 
   const fetchPlants = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/plants");
+      const res = await axios.get("http://plant-care-bot.onrender.com/api/plants");
       setPlants(res.data);
     } catch (err) {
       console.error("Error fetching plants:", err);
@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   const deletePlant = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/plants/${id}`);
+      await axios.delete(`http://plant-care-bot.onrender.com/api/plants/${id}`);
       fetchPlants();
     } catch (err) {
       console.error("Error deleting plant:", err);
@@ -43,7 +43,7 @@ export default function Dashboard() {
   const waterPlant = async (id) => {
     try {
       const today = new Date().toISOString();
-      await axios.put(`http://localhost:5000/api/plants/${id}`, {
+      await axios.put(`http://plant-care-bot.onrender.com/api/plants/${id}`, {
         lastWateredAt: today
       });
       fetchPlants(); // Refresh plants to update UI

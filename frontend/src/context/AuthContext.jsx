@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setError(null);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post("http://plant-care-bot.onrender.com/api/auth/login", {
         email,
         password,
       });
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const signup = async (fullName, email, password) => {
      setError(null);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signup", {
+      const res = await axios.post("http://plant-care-bot.onrender.com/api/auth/signup", {
         fullName,
         email,
         password,
