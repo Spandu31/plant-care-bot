@@ -3,7 +3,7 @@ import axios from "axios";
 import AddPlantForm from "./AddPlantForm";
 import { FaTint } from "react-icons/fa"; // Water drop icon
 import "./Dashboard.css";
-import { API_BASE_URL } from "../config/api"; // 👈 import base URL
+import { API_BASE_URL } from "../config/api";
 
 export default function Dashboard() {
   const [plants, setPlants] = useState([]);
@@ -28,7 +28,7 @@ export default function Dashboard() {
 
   const fetchPlants = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/plants`); // ✅ FIXED
+      const res = await axios.get(`${API_BASE_URL}/api/plants`);
       setPlants(res.data);
     } catch (err) {
       console.error(
@@ -40,7 +40,7 @@ export default function Dashboard() {
 
   const deletePlant = async (id) => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/plants/${id}`); // ✅ using base URL
+      await axios.delete(`${API_BASE_URL}/api/plants/${id}`);
       fetchPlants();
     } catch (err) {
       console.error(
@@ -56,7 +56,7 @@ export default function Dashboard() {
       await axios.put(`${API_BASE_URL}/api/plants/${id}`, {
         lastWateredAt: today,
       });
-      fetchPlants(); // Refresh plants to update UI
+      fetchPlants();
     } catch (err) {
       console.error(
         "Error watering plant:",
@@ -87,7 +87,7 @@ export default function Dashboard() {
         </h1>
         <button
           className="add-plant-btn"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => setShowForm((prev) => !prev)}
         >
           {showForm ? "Close Form" : "＋ Add a New Plant"}
         </button>
