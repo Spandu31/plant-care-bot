@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import WateringSlider from "./WateringSlider.jsx";
-import  "./AddPlantForm.css"; 
+import "./AddPlantForm.css";
+import { API_BASE_URL } from "../config/api"; // 👈 import base URL
 
 export default function AddPlantForm({ refresh, closeForm }) {
   const [form, setForm] = useState({
     name: "",
     type: "Indoor", // Default to Indoor
-    wateringFrequency: 7, 
+    wateringFrequency: 7,
     lastWateredAt: new Date().toISOString().split("T")[0],
   });
 
@@ -22,11 +23,11 @@ export default function AddPlantForm({ refresh, closeForm }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://plant-care-bot.onrender.com/api/plants", form);
+      await axios.post(`${API_BASE_URL}/api/plants`, form); // 👈 use https + base URL
       refresh();   // Refresh dashboard
       closeForm(); // Close the form
     } catch (err) {
-      console.error("Error adding plant:", err);
+      console.error("Error adding plant:", err.response?.data || err.message);
     }
   };
 
@@ -53,19 +54,17 @@ export default function AddPlantForm({ refresh, closeForm }) {
         </select>
       </div>
 
-      
       <div className="form-row">
-  <label>Last Watered On:</label>
-  <input
-    type="date"
-    name="lastWateredAt"
-    value={form.lastWateredAt}
-    onChange={handleChange}
-    max={new Date().toISOString().split("T")[0]} // ❌ Prevent future dates
-    required
-  />
-</div>
-
+        <label>Last Watered On:</label>
+        <input
+          type="date"
+          name="lastWateredAt"
+          value={form.lastWateredAt}
+          onChange={handleChange}
+          max={new Date().toISOString().split("T")[0]} // Prevent future dates
+          required
+        />
+      </div>
 
       <WateringSlider
         value={form.wateringFrequency}

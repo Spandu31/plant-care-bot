@@ -45,7 +45,9 @@ const Signup = () => {
               <h2 className="text-center mb-4">Sign Up</h2>
 
               {error && <div className="alert alert-danger">{error}</div>}
-              {passwordError && <div className="alert alert-warning">{passwordError}</div>}
+              {passwordError && (
+                <div className="alert alert-warning">{passwordError}</div>
+              )}
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
@@ -85,9 +87,9 @@ const Signup = () => {
                     }}
                     required
                   />
-                  <div className="invalid-feedback">
-                    {passwordError}
-                  </div>
+                  {passwordError && (
+                    <div className="invalid-feedback">{passwordError}</div>
+                  )}
                 </div>
 
                 <button type="submit" className="btn btn-success w-100">
@@ -97,10 +99,10 @@ const Signup = () => {
 
               <div className="mt-3 text-center">
                 <p>
-                  Already have an account? <Link to="/login">Login</Link>
+                  Already have an account?{" "}
+                  <Link to="/">Login</Link> {/* 👈 fixed path */}
                 </p>
               </div>
-
             </div>
           </div>
         </div>
