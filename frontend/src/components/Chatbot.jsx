@@ -1,6 +1,7 @@
 // frontend/src/components/Chatbot.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api"; // 👈 import base URL
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -25,20 +26,26 @@ export default function Chatbot() {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
+
     const newMessages = [...messages, { sender: "You", text: input }];
+    const currentInput = input; // preserve before clearing
     setMessages(newMessages);
     setInput("");
 
     try {
-      const res = await axios.post("${API_BASE_URL}/api/chat", {
-        message: input,
+      const res = await axios.post(`${API_BASE_URL}/api/chat`, {
+        message: currentInput,
       });
+
       setMessages([
         ...newMessages,
-        { sender: "Bot", text: res.data.reply || "No reply from server." },
+        {
+          sender: "Bot",
+          text: res.data.reply || "No reply from server.",
+        },
       ]);
     } catch (err) {
-      console.error(err);
+      console.error("Chat error:", err.response?.data || err.message);
       setMessages((prev) => [
         ...prev,
         {

@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-// This is a new file: WateringSlider.js
+// This is a new file: WateringSlider.jsx
 export default function WateringSlider({ value, onChange }) {
   const getWateringMessage = (days) => {
     if (days <= 2) return "Very Frequent";
@@ -23,7 +23,7 @@ export default function WateringSlider({ value, onChange }) {
         id="wateringFrequency"
         name="wateringFrequency"
         min="1"
-        max="30" // Water every day up to once a month
+        max="30"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="slider"

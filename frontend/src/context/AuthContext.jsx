@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+// frontend/src/context/AuthContext.jsx
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+} from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
 
@@ -15,8 +21,14 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
 
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common["x-auth-token"] = token;
+      try {
+        setUser(JSON.parse(storedUser));
+        axios.defaults.headers.common["x-auth-token"] = token;
+      } catch {
+        // If parsing fails, clear bad data
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
 
     setLoading(false);
@@ -71,13 +83,16 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    setError(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     delete axios.defaults.headers.common["x-auth-token"];
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading, error }}>
+    <AuthContext.Provider
+      value={{ user, login, signup, logout, loading, error }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );
